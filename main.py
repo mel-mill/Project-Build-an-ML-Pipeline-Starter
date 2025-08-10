@@ -51,9 +51,6 @@ def go(config: DictConfig):
             )
 
         if "basic_cleaning" in active_steps:
-            ##################
-            # Implement here #
-            ##################
             _=mlflow.run(
                 os.path.join(hydra.utils.get_original_cwd(),"src","basic_cleaning"),
                 entry_point="main",
@@ -70,9 +67,6 @@ def go(config: DictConfig):
         
 
         if "data_check" in active_steps:
-            ##################
-            # Implement here #
-            ##################
             _ = mlflow.run(
                 os.path.join(hydra.utils.get_original_cwd(),"src","data_check"),
                 entry_point="main",
@@ -86,9 +80,6 @@ def go(config: DictConfig):
             )
 
         if "data_split" in active_steps:
-            ##################
-            # Implement here #
-            ##################
             _ = mlflow.run(
                 f"{config['main']['components_repository']}/train_val_test_split",
                 "main",
@@ -108,13 +99,22 @@ def go(config: DictConfig):
                 json.dump(dict(config["modeling"]["random_forest"].items()), fp)  # DO NOT TOUCH
 
             # NOTE: use the rf_config we just created as the rf_config parameter for the train_random_forest
-            # step
+            _ = mlflow.run(
+                os.path.join(hydra.utils.get_original_cwd(),"src","train_random_forest"),
+                entry_point="main",
+                parameters={
+                    "trainval_artifact":"trainval_data.csv:latest",
+                    "val_size":config["modeling"]["val_size"],
+                    "random_seed":config["modeling"]["random_seed"],
+                    "stratify_by":config["modeling"]["stratify_by"],
+                    "rf_config":rf_config,
+                    "max_tfidf_features":config["modeling"]["max_tfidf_features"],
+                    "output_artifact":"random_forest_export",
+                }
+            )
 
-            ##################
-            # Implement here #
-            ##################
 
-            pass
+            
 
         if "test_regression_model" in active_steps:
 
